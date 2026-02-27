@@ -204,6 +204,7 @@ let
         ++ lib.optionals (ps ? toml && available ps.toml) [ ps.toml ]
         ++ lib.optionals (ps ? rich && available ps.rich) [ ps.rich ]
         ++ lib.optionals (ps ? "comfy-cli" && available ps."comfy-cli") [ ps."comfy-cli" ]
+        ++ lib.optionals (ps ? "flash-attn" && available ps."flash-attn") [ ps."flash-attn" ]
         # Linux-only packages (CUDA dependencies)
         ++ lib.optionals (pkgs.stdenv.isLinux && ps ? bitsandbytes) [ ps.bitsandbytes ]
         ++ lib.optionals (pkgs.stdenv.isLinux && ps ? xformers) [ ps.xformers ]

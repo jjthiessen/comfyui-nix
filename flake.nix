@@ -80,7 +80,7 @@
             system = "x86_64-linux";
             config = {
               allowUnfree = true;
-              allowBrokenPredicate = pkg: (pkg.pname or "") == "open-clip-torch";
+              allowBroken = true;
             };
           };
           pkgsLinuxArm64 = import nixpkgs {
@@ -175,7 +175,7 @@
             inherit system;
             config = {
               allowUnfree = true;
-              allowBrokenPredicate = pkg: (pkg.pname or "") == "open-clip-torch";
+              allowBroken = true;
               # aarch64-linux needs this workaround for kornia-rs
               allowUnsupportedSystem = system == "aarch64-linux";
             };

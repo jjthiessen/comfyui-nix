@@ -504,6 +504,59 @@ lib.optionalAttrs useCuda {
     doCheck = false;
   };
 }
+# flash-attn for rocm
+// lib.optionalAttrs (prev ? torch) {
+  flash-attn = final.buildPythonPackage rec {
+    pname = "flash-attention";
+    version = rocmWheels.flash-attn.version;
+    format = "wheel";
+    src = pkgs.fetchurl {
+      url = rocmWheels.flash-attn.url;
+      hash = rocmWheels.flash-attn.hash;
+    };
+    dontBuild = true;
+    dontConfigure = true;
+    nativeBuildInputs = [
+      pkgs.autoPatchelfHook
+      # final.setuptools
+      # final.wheel
+      # final.ninja
+    ];
+    buildInputs = wheelBuildInputs ++ rocmLibs ++ [ final.torch ];
+    propagatedBuildInputs = [
+      final.torch
+    ] # Use final.torch - will be CUDA/ROCm when gpuSupport="cuda|rocm"
+    ++ lib.optionals (prev ? torchvision) [ final.torchvision ]
+    ++ lib.optionals (prev ? safetensors) [ final.safetensors ]
+    ++ lib.optionals (prev ? numpy) [ final.numpy ]
+    ++ lib.optionals (prev ? einops) [ final.einops ]
+    ++ lib.optionals (prev ? typing-extensions) [ final.typing-extensions ];
+    pythonImportsCheck = [ ];
+    doCheck = false;
+    # Ignore torch libs (loaded via Python import)
+    autoPatchelfIgnoreMissingDeps = [
+      "libc10.so"
+      "libc10_hip.so"
+      "libamdhip64.so.7"
+      "libtorch.so"
+      "libtorch_cpu.so"
+      "libtorch_hip.so"
+      "libtorch_python.so"
+      "libhipblas.so.3"
+      "libhipfft.so.0"
+      "libhipsolver.so.1"
+      "libhipsparse.so.4"
+      "libMIOpen.so.1"
+      "librocrand.so.1"
+    ];
+    meta = {
+      description = "Flash Attention with ROCm (pre-built wheel)";
+      homepage = "https://github.com/Dao-AILab/flash-attention/";
+      license = lib.licenses.bsd3;
+      platforms = [ "x86_64-linux" ];
+    };
+  };
+}
 # Note: When useCuda=true, torch/torchvision/torchaudio are replaced with pre-built wheels
 # above. Packages that depend on torch (kornia, accelerate, etc.) will automatically
 # use our wheel-based torch via final.torch since we've overridden it in the overlay.
